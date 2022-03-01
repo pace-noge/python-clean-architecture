@@ -16,7 +16,7 @@
     "value": "postgres"
   },
   {
-    "name": "POSTGRES_hostname",
+    "name": "POSTGRES_HOSTNAME",
     "value": "localhost"
   },
   {

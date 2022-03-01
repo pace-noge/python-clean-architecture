@@ -10,6 +10,7 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 
 
+# Ensure an environment variable exists and has a value
 def setenv(variable, default):
     os.environ[variable] = os.getenv(variable, default)
 
@@ -27,10 +28,13 @@ def docker_compose_file(config):
 
 
 def read_json_configuration(config):
+    # Read configuration from the relative JSON file
     with open(app_config_file(config)) as f:
         config_data = json.load(f)
 
+    # Convert the config into a usable Python dictionary
     config_data = dict((i["name"], i["value"]) for i in config_data)
+
     return config_data
 
 
@@ -53,14 +57,14 @@ def docker_compose_cmdline(commands_string=None):
     compose_file = docker_compose_file(config)
 
     if not os.path.isfile(compose_file):
-        raise ValueError(f"The file {compose_file} does not exists")
+        raise ValueError(f"The file {compose_file} does not exist")
 
     command_line = [
         "docker-compose",
         "-p",
         config,
         "-f",
-        compose_file
+        compose_file,
     ]
 
     if commands_string:
@@ -89,7 +93,7 @@ def run_sql(statements):
 
 def wait_for_logs(cmdline, message):
     logs = subprocess.check_output(cmdline)
-    while message not in logs.decode("UTF-8"):
+    while message not in logs.decode("utf-8"):
         time.sleep(1)
         logs = subprocess.check_output(cmdline)
 
@@ -106,7 +110,7 @@ def test(args):
     cmdline = docker_compose_cmdline("logs postgres")
     wait_for_logs(cmdline, "ready to accept connections")
 
-    run_sql([f"CREATE DATABASE {os.getenv('APPLICATION_DG')}"])
+    run_sql([f"CREATE DATABASE {os.getenv('APPLICATION_DB')}"])
 
     cmdline = [
         "pytest",
@@ -123,5 +127,3 @@ def test(args):
 
 if __name__ == "__main__":
     cli()
-
-
